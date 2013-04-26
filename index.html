@@ -7,21 +7,38 @@
   function initialize() {
     var options = { zoom: 1.0, position: [47.19537,8.524404] };
     window.earth = new WebGLEarth('earth_div', options);
-   	window.mrk = earth.initMarker(0,0);
+    window.mrk = earth.initMarker(0,0);
+    repeatPositionUpdate();
+  }
+
+  function repeatPositionUpdate() {
+    getISS();
+    setTimeout(repeatPositionUpdate, 5000);
   }
 
   function getISS() {
-  	$.get('getiss.php',function(data) {
-  		window.isspos = JSON.parse(data);
-  		pos = window.isspos.iss_position;
-  		window.earth.setPosition(pos.latitude,pos.longitude);
-  		window.mrk.setPosition(pos.latitude,pos.longitude);
+      $.get('getiss.php',function(data) {
+      window.isspos = JSON.parse(data);
+      pos = window.isspos.iss_position;
+      if ($('#follow').prop('checked') == true) {
+        window.earth.setPosition(pos.latitude,pos.longitude);
+      }
+      window.mrk.setPosition(pos.latitude,pos.longitude);
+      $("#lat").html(pos.latitude);
+      $("#lng").html(pos.longitude);
     });
   }
 </script>
 </head>
-<body onload="initialize()">
-  <h1>WebGL Earth API: Hello World</h1>
-  <div id="earth_div" style="width:100%;height:800px;border:1px solid gray; padding:2px;"></div>
+<body style="font-family:Arial,Helvetica" onload="initialize()">
+  <h1 >Where's the ISS?</h1>
+  <table border=0 cellpadding=10><tr>
+      <td>Lat: <span id=lat></span></td>
+      <td>Long: <span id=lng></span></td>
+      <td>
+        <input type=checkbox id=follow checked>Follow station</input>
+      </td>
+  </tr></table>
+  <div id="earth_div" style="width:100%;height:800px;border:1px solid gray;background-color:black; padding:2px;"></div>
 </body>
 </html>
